@@ -1,0 +1,20 @@
+export type OrderStatus = "pending" | "shipped" | "delivered" | "cancelled";
+export type SortBy = "createdAt" | "totalAmount";
+export type SortDir = "asc" | "desc";
+
+export type Order = {
+  id: number;
+  customerName: string;
+  country: string;
+  totalAmount: number;
+  itemsCount: number;
+  status: OrderStatus;
+  createdAt: string;
+};
+
+export type OrderParams = {
+  status?: OrderStatus;
+  search?: string;
+  sortBy?: SortBy;
+  sortDir?: SortDir;
+};

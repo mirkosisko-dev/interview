@@ -4,6 +4,7 @@ import OrdersTable from "./components/orders-table";
 import SearchBar from "./components/search-bar";
 import { BrowserRouter } from "react-router-dom";
 import Select from "./components/select";
+import Dropdown from "./components/dropdown";
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <div className="w-full h-full flex justify-center items-center flex-col gap-4 p-4">
           <SearchBar />
+          <Dropdown />
           <div className="flex gap-2">
             <Select
               label="Sort by"
@@ -37,28 +39,6 @@ function App() {
                 {
                   value: "desc",
                   label: "Descending",
-                },
-              ]}
-            />
-            <Select
-              label="Status"
-              searchParamValue="status"
-              options={[
-                {
-                  value: "pending",
-                  label: "Pending",
-                },
-                {
-                  value: "shipped",
-                  label: "Shipped",
-                },
-                {
-                  value: "delivered",
-                  label: "Delivered",
-                },
-                {
-                  value: "cancelled",
-                  label: "Cancelled",
                 },
               ]}
             />

@@ -50,10 +50,13 @@ const ORDERS: Order[] = [
 
 const orderService = {
   async getOrders(params: OrderParams) {
+    console.log({ params });
     let result = [...ORDERS];
 
-    if (params.status)
-      result = result.filter((order) => order.status === params.status);
+    if (params.status && params.status.length > 0) {
+      const statuses = params.status;
+      result = result.filter((order) => statuses.includes(order.status));
+    }
 
     if (typeof params.search === "string" && params.search.trim().length > 0) {
       const term = params.search.toLowerCase();
@@ -81,6 +84,16 @@ const orderService = {
           : b.totalAmount - a.totalAmount;
       }
     });
+
+    if (params.countFilter && params.itemCount) {
+      console.log("In IF", { params });
+      const itemCount = +params.itemCount;
+      if (params.countFilter === "lt")
+        result = result.filter((order) => order.itemsCount > itemCount);
+      else if (params.countFilter === "eq")
+        result = result.filter((order) => order.itemsCount === itemCount);
+      else result = result.filter((order) => order.itemsCount < itemCount);
+    }
 
     return result;
   },

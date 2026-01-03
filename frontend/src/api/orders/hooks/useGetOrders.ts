@@ -2,7 +2,13 @@ import { useQuery } from "@tanstack/react-query";
 import { ORDERS } from "../query-keys";
 import { orderApi } from "../service";
 import { useSearchParams } from "react-router-dom";
-import type { OrderParams, OrderStatus, SortBy, SortDir } from "../types";
+import type {
+  CountFilter,
+  OrderParams,
+  OrderStatus,
+  SortBy,
+  SortDir,
+} from "../types";
 
 export default function useGetOrders() {
   const [searchParams] = useSearchParams();
@@ -11,16 +17,27 @@ export default function useGetOrders() {
   const sortBy = searchParams.get("sortBy");
   const sortDir = searchParams.get("sortDir");
   const status = searchParams.get("status");
+  const statusArray = status
+    ? status.split(",").filter((s) => s.trim().length > 0)
+    : [];
+  const itemCount = searchParams.get("itemCount");
+  const countFilter = searchParams.get("countFilter");
 
   const orderParamsObj: OrderParams = {};
 
   if (search && search.length > 0) orderParamsObj.search = search;
   if (sortBy) orderParamsObj.sortBy = sortBy as SortBy;
   if (sortDir) orderParamsObj.sortDir = sortDir as SortDir;
-  if (status) orderParamsObj.status = status as OrderStatus;
+  if (statusArray.length > 0) {
+    orderParamsObj.status = statusArray as OrderStatus[];
+  }
+  if (countFilter && itemCount && itemCount.length > 0) {
+    orderParamsObj.countFilter = countFilter as CountFilter;
+    orderParamsObj.itemCount = itemCount;
+  }
 
   return useQuery({
-    queryKey: [ORDERS, search, sortDir, sortBy, status],
+    queryKey: [ORDERS, search, sortDir, sortBy, status, countFilter, itemCount],
     queryFn: () => orderApi.getOrders(orderParamsObj),
   });
 }

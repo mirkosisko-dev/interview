@@ -1,12 +1,24 @@
 import { Request, Response } from "express";
 import orderService from "../services/order-service";
 import z from "zod";
+import { OrderStatus } from "../types/order-types";
 
 const getOrdersSchema = z.object({
-  status: z.enum(["pending", "shipped", "delivered", "cancelled"]).optional(),
+  status: z
+    .string()
+    .optional()
+    .transform((val) => {
+      if (!val) return undefined;
+      return val
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean) as OrderStatus[];
+    }),
   search: z.string().min(1).max(100).optional(),
   sortBy: z.enum(["createdAt", "totalAmount"]).optional(),
   sortDir: z.enum(["asc", "desc"]).optional(),
+  countFilter: z.enum(["lt", "eq", "st"]).optional(),
+  itemCount: z.string().min(1).max(100).optional(),
 });
 
 const orderController = {
@@ -19,6 +31,7 @@ const orderController = {
         details: validationResult.error.message,
       });
     }
+
     try {
       const orders = await orderService.getOrders(validationResult.data);
       res.status(200).json({ orders });

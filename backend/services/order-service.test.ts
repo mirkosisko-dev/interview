@@ -16,27 +16,54 @@ describe("orderService", () => {
 
   describe("getOrders - filter by status", () => {
     it("should filter orders by 'pending' status", async () => {
-      const orders = await orderService.getOrders({ status: "pending" });
+      const orders = await orderService.getOrders({ status: ["pending"] });
       expect(orders).toHaveLength(1);
       expect(orders[0].status).toBe("pending");
     });
 
     it("should filter orders by 'shipped' status", async () => {
-      const orders = await orderService.getOrders({ status: "shipped" });
+      const orders = await orderService.getOrders({ status: ["shipped"] });
       expect(orders).toHaveLength(1);
       expect(orders[0].status).toBe("shipped");
     });
 
     it("should filter orders by 'delivered' status", async () => {
-      const orders = await orderService.getOrders({ status: "delivered" });
+      const orders = await orderService.getOrders({ status: ["delivered"] });
       expect(orders).toHaveLength(2);
       expect(orders.every((order) => order.status === "delivered")).toBe(true);
     });
 
     it("should filter orders by 'cancelled' status", async () => {
-      const orders = await orderService.getOrders({ status: "cancelled" });
+      const orders = await orderService.getOrders({ status: ["cancelled"] });
       expect(orders).toHaveLength(1);
       expect(orders[0].status).toBe("cancelled");
+    });
+
+    it("should filter orders by multiple statuses", async () => {
+      const orders = await orderService.getOrders({
+        status: ["pending", "shipped", "delivered"],
+      });
+      expect(orders).toHaveLength(4);
+      expect(orders.every((order) =>
+        ["pending", "shipped", "delivered"].includes(order.status)
+      )).toBe(true);
+    });
+
+    it("should filter orders by all statuses", async () => {
+      const orders = await orderService.getOrders({
+        status: ["pending", "shipped", "delivered", "cancelled"],
+      });
+      expect(orders).toHaveLength(5);
+    });
+
+    it("should return empty array when no status matches", async () => {
+      const orders = await orderService.getOrders({ status: ["invalid"] as any });
+      expect(orders).toHaveLength(0);
+    });
+
+    it("should handle empty status array (no filter)", async () => {
+      const orders = await orderService.getOrders({ status: [] });
+      expect(orders).toHaveLength(5);
     });
   });
 
@@ -117,7 +144,7 @@ describe("orderService", () => {
   describe("getOrders - combined filters and sort", () => {
     it("should filter by status and sort by createdAt", async () => {
       const orders = await orderService.getOrders({
-        status: "delivered",
+        status: ["delivered"],
         sortBy: "createdAt",
         sortDir: "asc",
       });
@@ -138,7 +165,7 @@ describe("orderService", () => {
 
     it("should filter, search, and sort together", async () => {
       const orders = await orderService.getOrders({
-        status: "delivered",
+        status: ["delivered"],
         search: "carla",
         sortBy: "totalAmount",
         sortDir: "desc",
@@ -146,6 +173,17 @@ describe("orderService", () => {
       expect(orders).toHaveLength(1);
       expect(orders[0].customerName).toBe("Carla Rossi");
       expect(orders[0].status).toBe("delivered");
+    });
+
+    it("should filter by multiple statuses and sort", async () => {
+      const orders = await orderService.getOrders({
+        status: ["pending", "shipped"],
+        sortBy: "totalAmount",
+        sortDir: "asc",
+      });
+      expect(orders).toHaveLength(2);
+      expect(orders[0].totalAmount).toBe(129.5);
+      expect(orders[1].totalAmount).toBe(349.99);
     });
   });
 
@@ -178,12 +216,33 @@ describe("orderService", () => {
 
     it("should return correct order of combined operations", async () => {
       const orders = await orderService.getOrders({
-        status: "delivered",
+        status: ["delivered"],
         sortBy: "totalAmount",
         sortDir: "asc",
       });
       expect(orders).toHaveLength(2);
       expect(orders[0].totalAmount).toBeLessThan(orders[1].totalAmount);
+    });
+
+    it("should handle duplicate statuses in array", async () => {
+      const orders = await orderService.getOrders({
+        status: ["pending", "pending", "shipped", "shipped"],
+      });
+      expect(orders).toHaveLength(2);
+      const statuses = orders.map((o) => o.status);
+      expect(statuses).toContain("pending");
+      expect(statuses).toContain("shipped");
+    });
+
+    it("should preserve original data order when sorting not applied", async () => {
+      const orders = await orderService.getOrders({
+        status: ["pending", "shipped"],
+      });
+      const allOrders = await orderService.getOrders({});
+      const filteredOrders = allOrders.filter((o) =>
+        ["pending", "shipped"].includes(o.status)
+      );
+      expect(orders).toEqual(filteredOrders);
     });
   });
 });

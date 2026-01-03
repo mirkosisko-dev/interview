@@ -1,6 +1,7 @@
 export type OrderStatus = "pending" | "shipped" | "delivered" | "cancelled";
 export type SortBy = "createdAt" | "totalAmount";
 export type SortDir = "asc" | "desc";
+export type CountFilter = "lt" | "eq" | "st";
 
 export type Order = {
   id: number;
@@ -13,8 +14,10 @@ export type Order = {
 };
 
 export type OrderParams = {
-  status?: OrderStatus;
+  status?: OrderStatus[];
   search?: string;
   sortBy?: SortBy;
   sortDir?: SortDir;
+  countFilter?: CountFilter;
+  itemCount?: string;
 };

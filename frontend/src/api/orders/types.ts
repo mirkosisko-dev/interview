@@ -20,4 +20,16 @@ export type OrderParams = {
   sortDir?: SortDir;
   countFilter?: CountFilter;
   itemCount?: string;
+  page?: string;
+  limit?: string;
+};
+
+export type PaginationMetadata = {
+  totalCount: number;
+  totalPages: number;
+};
+
+export type OrderReturn = {
+  orders: Order[];
+  pagination: PaginationMetadata;
 };

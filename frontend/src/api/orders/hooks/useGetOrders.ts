@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { ORDERS } from "../query-keys";
 import { orderApi } from "../service";
 import { useSearchParams } from "react-router-dom";
@@ -22,8 +22,13 @@ export default function useGetOrders() {
     : [];
   const itemCount = searchParams.get("itemCount");
   const countFilter = searchParams.get("countFilter");
+  const page = searchParams.get("page") || "1";
+  const limit = searchParams.get("limit") || "10";
 
-  const orderParamsObj: OrderParams = {};
+  const orderParamsObj: OrderParams = {
+    page,
+    limit,
+  };
 
   if (search && search.length > 0) orderParamsObj.search = search;
   if (sortBy) orderParamsObj.sortBy = sortBy as SortBy;
@@ -37,7 +42,18 @@ export default function useGetOrders() {
   }
 
   return useQuery({
-    queryKey: [ORDERS, search, sortDir, sortBy, status, countFilter, itemCount],
+    queryKey: [
+      ORDERS,
+      search,
+      sortDir,
+      sortBy,
+      status,
+      countFilter,
+      itemCount,
+      page,
+      limit,
+    ],
     queryFn: () => orderApi.getOrders(orderParamsObj),
+    placeholderData: keepPreviousData,
   });
 }

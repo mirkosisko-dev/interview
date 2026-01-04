@@ -1,5 +1,10 @@
-import type { Order, OrderParams } from "./types";
-import { ApiError, ValidationError, ServerError, NotFoundError } from "../errors";
+import type { OrderParams, OrderReturn } from "./types";
+import {
+  ApiError,
+  ValidationError,
+  ServerError,
+  NotFoundError,
+} from "../errors";
 
 export const orderApi = {
   async getOrders(params?: OrderParams) {
@@ -19,7 +24,7 @@ export const orderApi = {
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({
-        error: { message: "Failed to parse error response" }
+        error: { message: "Failed to parse error response" },
       }));
 
       const message = errorData.error?.message || "Failed to fetch orders";
@@ -40,8 +45,8 @@ export const orderApi = {
       throw new ApiError(message, res.status, code);
     }
 
-    const { orders }: { orders: Order[] } = await res.json();
+    const data: OrderReturn = await res.json();
 
-    return orders;
+    return data;
   },
 };

@@ -1,12 +1,14 @@
 import useGetOrders from "../api/orders/hooks/useGetOrders";
 import type { Order } from "../api/orders/types";
+import Pagination from "./pagination";
 
 const OrdersTable = () => {
-  const { data, isPending, isError, error } = useGetOrders();
+  const { data, isPlaceholderData, isPending, isError, isFetching, error } =
+    useGetOrders();
 
   return (
     <div className="w-full h-full flex justify-center items-center">
-      {isPending ? (
+      {isPending || isFetching ? (
         <div>Loading...</div>
       ) : !data ? (
         <div>No data</div>
@@ -36,7 +38,7 @@ const OrdersTable = () => {
                 </tr>
               </thead>
               <tbody>
-                {data.map((order: Order) => (
+                {data.orders.map((order: Order) => (
                   <tr
                     className="bg-neutral-primary border-b border-default"
                     key={order.id}
@@ -58,6 +60,11 @@ const OrdersTable = () => {
               </tbody>
             </table>
           </div>
+
+          <Pagination
+            isPlaceholderData={isPlaceholderData}
+            totalPages={data.pagination.totalPages}
+          />
         </div>
       )}
     </div>

@@ -19,6 +19,8 @@ const getOrdersSchema = z.object({
   sortDir: z.enum(["asc", "desc"]).optional(),
   countFilter: z.enum(["lt", "eq", "st"]).optional(),
   itemCount: z.string().min(1).max(100).optional(),
+  page: z.string().optional(),
+  limit: z.string().optional(),
 });
 
 const orderController = {
@@ -33,8 +35,8 @@ const orderController = {
     }
 
     try {
-      const orders = await orderService.getOrders(validationResult.data);
-      res.status(200).json({ orders });
+      const response = await orderService.getOrders(validationResult.data);
+      res.status(200).json(response);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }
